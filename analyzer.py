@@ -1,10 +1,10 @@
-"""Simple educational paradigm detection; source code is never executed."""
+"""paradigm detection"""
 
 import ast
 
 
 def analyze_code(code: str) -> dict:
-    """Return paradigm evidence with source line numbers, or a syntax error."""
+    """Return paradigm evidence"""
     features = {
         "loops": [], "assignments": [], "augmented_assignments": [],
         "lambdas": [], "functional_calls": [], "classes": [],
@@ -52,7 +52,7 @@ def analyze_code(code: str) -> dict:
     rules = {
         "Imperative": ("loops", "assignments", "augmented_assignments"),
         "Functional": ("lambdas", "functional_calls"),
-        "Object-Oriented": ("classes", "methods", "inheritance"),
+        "Object-Oriented": ("classes",),
     }
     result["detected_paradigms"] = [
         paradigm for paradigm, names in rules.items() if any(features[name] for name in names)

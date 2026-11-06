@@ -266,3 +266,12 @@ The request separately includes JSON containing `source_code`, `ast_findings`, a
 ## Future prompts
 
 Append future development prompts here.
+
+## Cleanup and Gemini repair (2026-11-06)
+
+Keep the teammate's implementation, verify originals are committed before replacing
+them, rename `-FV` files to standard names, preserve local secrets and the virtual
+environment, list models with the official API, test a suitable free-tier model,
+and verify the Streamlit application. Do not commit or upload changes to GitHub.
+The selected model is now `gemini-3.5-flash-lite`; the original development prompt above
+is historical. The runtime tutor prompt remains unchanged.

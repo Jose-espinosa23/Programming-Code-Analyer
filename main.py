@@ -16,7 +16,9 @@ def analyze(code: str) -> dict:
         "suggested_alternative_code": None,
         "alternative_explanation": None,
     }
-    if result["error"] is None:
+    if not code.strip():
+        result["error"] = "Add some Python code before starting the analysis."
+    elif result["error"] is None:
         result.update(explain_code(code, result["ast_features"], result["detected_paradigms"]))
     return result
 

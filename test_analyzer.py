@@ -92,13 +92,15 @@ class AITests(unittest.TestCase):
         for text in (None, "not json", "[]", '{"ai_explanation": 3}'):
             with self.subTest(text=text):
                 self.client.models.generate_content.return_value.text = text
-                self.assertIn("invalid structured response", explain_code("", {}, [])["error"])
+                self.assertEqual(explain_code("", {}, [])["error"],
+                                 "Gemini could not complete the analysis.")
 
     def test_api_failure_does_not_expose_exception(self):
         self.client.models.generate_content.side_effect = RuntimeError("sensitive request detail")
         error = explain_code("", {}, [])["error"]
-        self.assertIn("request failed", error)
+        self.assertEqual(error, "Gemini could not complete the analysis.")
         self.assertNotIn("sensitive", error)
+
 
 
 if __name__ == "__main__":

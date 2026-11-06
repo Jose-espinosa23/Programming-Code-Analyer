@@ -1,17 +1,17 @@
 # AI Programming Paradigm Analyzer
 
-A small Python backend for a Programming Paradigms university project. It reads
+A small Python application for a Programming Paradigms university project. It reads
 Python source as text, finds structural evidence with `ast`, and optionally asks
-Gemini for an explanation and a different-paradigm rewrite. There is no frontend,
-server, database, or authentication. Input and generated code are never executed.
+Gemini for an explanation and a different-paradigm rewrite. A Streamlit interface displays the results. There is no database or authentication. Input and generated code are never executed.
 
 ## Files
 
 - `analyzer.py`: `analyze_code(code)` parses and detects paradigm evidence.
 - `ai.py`: `explain_code(code, ast_findings, detected_paradigms)` calls Gemini.
 - `main.py`: `analyze(code)` joins the results; includes a command-line demo.
+- `app.py`: your teammate's Streamlit interface.
 - `test_analyzer.py`: offline examples and tests using standard-library unittest.
-- `requirements.txt`: the two external dependencies.
+- `requirements.txt`: the three external dependencies.
 - `.env.example`: API key configuration template.
 - `.gitignore`: excludes secrets, virtual environments, and Python caches.
 - `prompts.md`: development request and the Gemini prompt.
@@ -25,7 +25,7 @@ cd '/Users/enriquermz05/Desktop/BORRAR/Programming Paradigms/Project/Project2/Pa
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-cp .env.example .env
+test -f .env || cp .env.example .env
 open -e .env
 ```
 
@@ -64,13 +64,13 @@ Gemini is not called.
 ## Gemini and results
 
 `ai.py` uses the official `google-genai` SDK and `python-dotenv`. `MODEL_NAME` is
-`gemini-2.5-flash`; change that constant if needed. `ANALYSIS_PROMPT` holds the tutor
+`gemini-3.5-flash-lite`; change that constant if needed. `ANALYSIS_PROMPT` holds the tutor
 instructions. A JSON response schema requests three text fields; the backend also
 checks their types. The request has a 30-second HTTP timeout.
 See the [official SDK documentation](https://googleapis.github.io/python-genai/)
 for the structured response API.
 
-A future Streamlit interface can use:
+The Streamlit interface calls the backend like this:
 
 ```python
 from main import analyze
@@ -112,3 +112,58 @@ some context errors are only rejected during compilation. Very large or deeply
 nested source is outside this small project's scope. Gemini can still make mistakes
 despite prompt instructions and a JSON schema. Generated alternatives are unverified,
 never executed, and may change behavior; review them before using them.
+
+
+## Web interface (Streamlit)
+
+Install the dependencies and configure your Gemini API key in `.env` as described above.
+Then start the web interface:
+
+```bash
+streamlit run app.py
+```
+
+Streamlit will open the application in your browser. The interface accepts pasted Python
+code or an uploaded `.py` file. It displays detected paradigms, AST evidence, the AI
+explanation, and a suggested alternative implementation when Gemini is available.
+
+## Run the Streamlit interface on Windows
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+python -m streamlit run app.py
+```
+
+Add your own `GEMINI_API_KEY` to `.env`. If PowerShell blocks activation,
+use Command Prompt and run `.venv\Scripts\activate.bat`. Never share or commit `.env`.
+
+## Cleanup and verification (2026-11-06)
+
+The original files were verified as committed and unchanged in commit `9a46161`
+before replacement. The teammate's `-FV` files were renamed to standard module
+names; the interface and analyzer implementation were preserved. No GitHub changes
+were made. The teammate's Gemini model and integration were retained, error-handling tests were corrected
+and extended, and this documentation was updated.
+
+The official models API listed `gemini-3.5-flash-lite` for the configured key. Google
+lists a [free tier for this model](https://ai.google.dev/gemini-api/docs/pricing).
+Free-tier availability does not establish this project's billing tier or remaining
+quota; those settings are managed in Google AI Studio.
+
+Verification results:
+
+- All 12 offline unittest tests passed.
+- Streamlit's AppTest loaded the interface and exercised the Analyze button.
+- A real request using `gemini-3.5-flash-lite` returned explanations covering all
+  three paradigms, alternative code, and an explanation of the alternative.
+- Invalid Python produced a visible syntax error; offline tests verify Gemini is
+  skipped for invalid syntax.
+- The Streamlit server returned HTTP 200 from its health endpoint.
+- No `-FV` files remain. Imports resolve to the renamed teammate modules.
+
+Live checks confirm the integration works, not that generated rewrites are correct.
+Generated code was not executed. Google can still return temporary service errors
+or quota errors; the interface shows the HTTP status without exposing secrets.
